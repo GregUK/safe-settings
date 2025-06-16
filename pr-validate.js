@@ -2,14 +2,14 @@ const appFn = require('./')
 const { FULL_SYNC_NOP } = require('./lib/env')
 const { createProbot } = require('probot')
 
-async function validatePR (nop = true) {
+async function validatePR (appFn, nop = true) {
   const probot = createProbot()
   probot.log.info(`Starting PR validation with NOP=${nop}`)
 
   try {
     const app = appFn(probot, {})
-    robot.log.trace('Fetching installations')
-    const github = await robot.auth()
+    probot.log.trace('Fetching installations')
+    const github = await probot.auth()
 
     const installations = await github.paginate(
       github.apps.listInstallations.endpoint.merge({ per_page: 100 })
@@ -17,7 +17,7 @@ async function validatePR (nop = true) {
 
     if (installations.length > 0) {
       const installation = installations[0]
-      const github = await robot.auth(installation.id)
+      const github = await probot.auth(installation.id)
 
       // Get PR details from GitHub context
       const pr = await github.pulls.get({
@@ -55,7 +55,7 @@ async function validatePR (nop = true) {
   }
 }
 
-validatePR(FULL_SYNC_NOP).catch((error) => {
+validatePR(appFn, FULL_SYNC_NOP).catch((error) => {
   console.error('Fatal error during PR validation:', error)
   process.exit(1)
 })

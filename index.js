@@ -190,7 +190,8 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
   }
   async function createCheckRun (context, pull_request, head_sha, head_branch) {
     const { payload } = context
-    robot.log.debug(`Creating check run for PR: ${pull_request?.number}, head_sha: ${head_sha}`)
+    robot.log.debug(`Creating check run for PR: ${pull_request.number}, head_sha: ${head_sha}`)
+    robot.log.debug(`Pull request data: ${JSON.stringify(pull_request)}`)
 
     const checkSuiteId = payload.check_suite?.id
     robot.log.debug(`Check suite ID: ${checkSuiteId}`)
@@ -199,8 +200,7 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
       owner: payload.repository.owner.login,
       repo: payload.repository.name,
       name: 'Safe-setting validator',
-      head_sha,
-      check_suite_id: checkSuiteId
+      head_sha
     })
     robot.log.debug(`Check run created: ${JSON.stringify(res.data)}`)
   }

@@ -190,14 +190,19 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
   }
   async function createCheckRun (context, pull_request, head_sha, head_branch) {
     const { payload } = context
-    // robot.log.debug(`Check suite was requested! for ${context.repo()} ${pull_request.number} ${head_sha} ${head_branch}`)
+    robot.log.debug(`Creating check run for PR: ${pull_request?.number}, head_sha: ${head_sha}`)
+
+    const checkSuiteId = payload.check_suite?.id
+    robot.log.debug(`Check suite ID: ${checkSuiteId}`)
+
     const res = await context.octokit.checks.create({
       owner: payload.repository.owner.login,
       repo: payload.repository.name,
       name: 'Safe-setting validator',
-      head_sha
+      head_sha,
+      check_suite_id: checkSuiteId
     })
-    robot.log.debug(JSON.stringify(res, null))
+    robot.log.debug(`Check run created: ${JSON.stringify(res.data)}`)
   }
 
   async function info () {
@@ -456,6 +461,9 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
   robot.on('check_suite.requested', async context => {
     const { payload } = context
     const { repository } = payload
+    robot.log.debug(`Check suite requested for repo: ${repository.name}`)
+    robot.log.debug(`Check suite payload: ${JSON.stringify(payload.check_suite)}`)
+
     const adminRepo = repository.name === env.ADMIN_REPO
     robot.log.debug(`Is Admin repo event ${adminRepo}`)
     if (!adminRepo) {
@@ -472,6 +480,8 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
       head_sha: headSha,
       pull_requests: pullRequests
     } = context.payload.check_suite
+
+    robot.log.debug(`Check suite pull requests: ${JSON.stringify(pullRequests)}`)
 
     if (!Array.isArray(pullRequests) || !pullRequests[0]) {
       robot.log.debug('Not working on a PR, returning...')
@@ -578,7 +588,15 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
     if (check_suite.before === '0000000000000000000000000000000000000000') {
       check_suite.before = check_suite.pull_requests[0].base.sha
     }
-    params = Object.assign(context.repo(), { basehead: `${check_suite.before}...${check_suite.after}` })
+    // Use the base branch's HEAD as the starting point for comparison on PR's so that all changes in the feature branch are included in the comparison to the base branch
+    const baseBranch = check_suite.pull_requests[0].base.ref
+    const baseBranchHead = await context.octokit.repos.getBranch({
+      owner: payload.repository.owner.login,
+      repo: payload.repository.name,
+      branch: baseBranch
+    })
+
+    params = Object.assign(context.repo(), { basehead: `${baseBranchHead.data.commit.sha}...${check_suite.after}` })
     const changes = await context.octokit.repos.compareCommitsWithBasehead(params)
     const files = changes.data.files.map(f => { return f.filename })
 

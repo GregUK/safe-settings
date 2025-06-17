@@ -31,7 +31,7 @@ async function validatePR (appFn, nop = true) {
           installation,
           pull_request: pr.data,
           repository: {
-            name: env.ADMIN_REPO,
+            name: ADMIN_REPO,
             owner: {
               login: installation.account.login
             }
@@ -39,7 +39,7 @@ async function validatePR (appFn, nop = true) {
         },
         octokit: github,
         log: robot.log,
-        repo: () => { return { repo: env.ADMIN_REPO, owner: installation.account.login } }
+        repo: () => { return { repo: ADMIN_REPO, owner: installation.account.login } }
       }
 
       // Create check run like the webhook would

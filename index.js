@@ -666,6 +666,7 @@ module.exports = (robot, { getRouter }, Settings = require('./lib/settings')) =>
 
   return {
     syncInstallation,
-    syncAllSettings // Export syncAllSettings for PR validation in pr-validate.js
+    syncAllSettings, // Export syncAllSettings for PR validation in pr-validate.js
+    createCheckRun // Export createCheckRun for PR validation in pr-validate.js
   }
 }

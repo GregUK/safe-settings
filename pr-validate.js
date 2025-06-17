@@ -26,18 +26,12 @@ async function validatePR (appFn, nop = true) {
         pull_number: process.env.GITHUB_EVENT_NUMBER
       })
 
-      // Create check run like the webhook would
-      const checkRun = await app.createCheckRun(context, pr.data, process.env.GITHUB_SHA, pr.data.head.ref)
-
       const context = {
         payload: {
           installation,
           pull_request: pr.data,
-          check_run: checkRun.data,
-          check_suite: {
-            id: checkRun.data.check_suite.id,
-            pull_requests: [pr.data]
-          },
+          check_run: {},
+          check_suite: {},
           repository: {
             name: ADMIN_REPO,
             owner: {
@@ -49,7 +43,15 @@ async function validatePR (appFn, nop = true) {
         log: probot.log,
         repo: () => { return { repo: ADMIN_REPO, owner: installation.account.login } }
       }
+      // Create check run like the webhook would
+      const checkRun = await app.createCheckRun(context, pr.data, process.env.GITHUB_SHA, pr.data.head.ref)
 
+      // Update context with check run data
+      context.payload.check_run = checkRun.data
+      context.payload.check_suite = {
+        id: checkRun.data.check_suite.id,
+        pull_requests: [pr.data]
+      }
       // Then follow the same flow as check_run.created
       return app.syncAllSettings(nop, context, context.repo(), pr.data.head.ref)
     }

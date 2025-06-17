@@ -44,11 +44,12 @@ async function validatePR (appFn, nop = true) {
     // Create check run like the webhook would
     const checkRun = await app.createCheckRun(context, pr.data, process.env.GITHUB_SHA, pr.data.head.ref)
     probot.log.debug(`Check run response: ${JSON.stringify(checkRun)}`)
+    probot.log.debug(`PR Data: ${JSON.stringify(pr)}`)
     // Update context with check run data
     context.payload.check_run = checkRun
     context.payload.check_suite = {
       id: checkRun.check_suite.id,
-      pull_requests: [pr.data]
+      pull_requests: [pr]
     }
 
     // Then follow the same flow as check_run.created

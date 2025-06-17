@@ -1,5 +1,5 @@
 const appFn = require('./')
-const { FULL_SYNC_NOP } = require('./lib/env')
+const { FULL_SYNC_NOP, ADMIN_REPO } = require('./lib/env')
 const { createProbot } = require('probot')
 
 async function validatePR (appFn, nop = true) {
@@ -22,7 +22,7 @@ async function validatePR (appFn, nop = true) {
       // Get PR details from GitHub context
       const pr = await github.pulls.get({
         owner: installation.account.login,
-        repo: env.ADMIN_REPO,
+        repo: ADMIN_REPO,
         pull_number: process.env.GITHUB_EVENT_NUMBER
       })
 

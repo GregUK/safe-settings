@@ -43,7 +43,8 @@ async function validatePR (appFn, nop = true) {
       }
 
       // Create check run like the webhook would
-      //const checkRun = await app.createCheckRun(context, pr.data, process.env.GITHUB_SHA, pr.data.head.ref)
+      const checkRun = await app.createCheckRun(context, pr.data, process.env.GITHUB_SHA, pr.data.head.ref)
+      context.payload.check_run = checkRun.data
 
       // Then follow the same flow as check_run.created
       return app.syncAllSettings(nop, context, context.repo(), pr.data.head.ref)

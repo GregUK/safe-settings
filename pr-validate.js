@@ -38,7 +38,7 @@ async function validatePR (appFn, nop = true) {
           }
         },
         octokit: github,
-        log: robot.log,
+        log: probot.log,
         repo: () => { return { repo: ADMIN_REPO, owner: installation.account.login } }
       }
 

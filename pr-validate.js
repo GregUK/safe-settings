@@ -54,13 +54,13 @@ async function validatePR (appFn, nop = true) {
 
     const checkRun = checkRuns.data.check_runs[0]
     probot.log.debug(`Check run response: ${JSON.stringify(checkRun)}`)
-    probot.log.debug(`PR Data: ${JSON.stringify(pr)}`)
+    probot.log.debug(`PR Data: ${JSON.stringify(pr.data)}`)
 
     // Update context with check run data
     context.payload.check_run = checkRun
     context.payload.check_suite = {
       id: checkRun.check_suite.id,
-      pull_requests: [pr]
+      pull_requests: [pr.data]
     }
 
     // Then follow the same flow as check_run.created

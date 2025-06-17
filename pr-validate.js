@@ -6,7 +6,7 @@ async function validatePR (appFn, nop = true) {
   const probot = createProbot()
   probot.log.info(`Starting PR validation with NOP=${nop}`)
 
-  try {
+ // try {
     const app = appFn(probot, {})
     probot.log.trace('Fetching installations')
     const github = await probot.auth()
@@ -43,16 +43,16 @@ async function validatePR (appFn, nop = true) {
       }
 
       // Create check run like the webhook would
-      const checkRun = await app.createCheckRun(context, pr.data, process.env.GITHUB_SHA, pr.data.head.ref)
+      //const checkRun = await app.createCheckRun(context, pr.data, process.env.GITHUB_SHA, pr.data.head.ref)
 
       // Then follow the same flow as check_run.created
       return app.syncAllSettings(nop, context, context.repo(), pr.data.head.ref)
     }
     return null
-  } catch (error) {
-    process.stdout.write(`Unexpected error during PR validation: ${error}\n`)
-    process.exit(1)
-  }
+//   } catch (error) {
+//     process.stdout.write(`Unexpected error during PR validation: ${error}\n`)
+//     process.exit(1)
+//   }
 }
 
 validatePR(appFn, FULL_SYNC_NOP).catch((error) => {
